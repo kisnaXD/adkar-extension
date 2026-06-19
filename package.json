@@ -1,0 +1,93 @@
+{
+  "name": "adkar",
+  "displayName": "AdKar — Developer Ads",
+  "description": "Monetize your development workflow with contextual, non-intrusive ads from Indian tech companies",
+  "version": "0.1.4",
+  "publisher": "KrishnaGera",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kisnaXD/adkar-vscode.git"
+  },
+  "icon": "resources/icon.png",
+  "homepage": "https://adkar.online",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "adkar",
+        "title": "AdKar",
+        "icon": "resources/icon.svg"
+      }]
+    },
+    "views": {
+      "adkar": [{
+        "type": "webview",
+        "id": "adkar.sidebar",
+        "name": "Sponsored"
+      }]
+    },
+    "commands": [
+      { "command": "adkar.refreshAd", "title": "AdKar: Refresh Ad" },
+      { "command": "adkar.showWelcome", "title": "AdKar: Show Welcome" }
+    ],
+    "configuration": {
+      "title": "AdKar",
+      "properties": {
+        "adkar.publisherId": {
+          "type": "string",
+          "default": "",
+          "description": "Your AdKar Publisher ID"
+        },
+        "adkar.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your AdKar API Key"
+        },
+        "adkar.apiUrl": {
+          "type": "string",
+          "default": "https://api.adkar.online",
+          "description": "AdKar API URL"
+        },
+        "adkar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable AdKar ads"
+        },
+        "adkar.surfaces.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show ads in status bar"
+        },
+        "adkar.surfaces.sidebar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show ads in sidebar"
+        },
+        "adkar.surfaces.notifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show notification ads (max 1 per 10 min)"
+        },
+        "adkar.surfaces.welcome": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show welcome tab on startup"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "watch": "npm run build -- --watch",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.21.0",
+    "typescript": "^5.4.5"
+  }
+}
