@@ -80,4 +80,4 @@ All API calls go to `api.adkar.online` only.
 
 ## License
 
-MIT
+Source Available — see [LICENSE](LICENSE). You can read and audit the code. You cannot fork, redistribute, or use it to build competing products.
