@@ -63,10 +63,10 @@ export class SidebarSurface implements vscode.WebviewViewProvider, vscode.Dispos
   }
 
   private buildMultiHtml(ads: Ad[]): string {
+    // SECURITY: never render server-provided HTML (ad.htmlContent) raw into a
+    // scripted webview — that was an advertiser→publisher stored-XSS / RCE sink.
+    // Only escaped, structured fields are rendered.
     const cards = ads.map((ad, i) => {
-      if (ad.htmlContent) {
-        return `<div class="card clickable" data-index="${i}">${ad.htmlContent}</div>`;
-      }
       return `<div class="card clickable" data-index="${i}">
         <div class="badge">Sponsored</div>
         <h2>${this.esc(ad.headline)}</h2>
@@ -76,13 +76,14 @@ export class SidebarSurface implements vscode.WebviewViewProvider, vscode.Dispos
       </div>`;
     }).join('\n');
 
+    const nonce = this.nonce();
     return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';">
 <style>${this.getStyles()}</style></head>
 <body>
   ${cards}
-  <script>
+  <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
     document.querySelectorAll('.clickable').forEach(el => {
       el.addEventListener('click', (e) => {
@@ -143,6 +144,13 @@ export class SidebarSurface implements vscode.WebviewViewProvider, vscode.Dispos
 
   private esc(str: string): string {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  private nonce(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let out = '';
+    for (let i = 0; i < 24; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
   }
 
   stop(): void {
